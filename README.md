@@ -3,3 +3,58 @@
 A header-only basic Hill Cipher implementation modulo 97 (all characters commonly found on a QWERTY keyboard, including a-z, A-Z, 0-9, all symbols, tab, and newline). Since 97 is prime, Z/97 is a field, which is convenient.
 
 Uses my two header-only implementations of [integers modulo N](https://gitlab.com/mathnerd/integers-modulo-n) and [minimal matrix](https://gitlab.com/mathnerd/minimal-matrix).
+
+# Usage
+Here's a basic example:
+```
+#include "hill_cipher.h"
+#include <iostream>
+
+using namespace math_nerd::hill_cipher; // For demonstration purposes.
+
+int main()
+{
+    hill_key<5> key;
+
+    for( auto i = 0u; i < 5; ++i )
+    {
+        for( auto j = 0u; j < 5; ++j )
+        {
+            if( i < j )
+            {
+                key[i][j] = 5*i - 2*j;
+            }
+            else
+            {
+                key[i][j] = 3 * i + j;
+            }
+        }
+    }
+
+    std::string pt = "Hello, world!";
+
+    std::string ct = encrypt(key, pt);
+
+    try
+    {
+        pt = decrypt(key, ct);
+    }
+    catch( std::invalid_argument const &e )
+    {
+        std::cout << e.what();
+        return EXIT_FAILURE;
+    }
+
+    std::cout << "Plaintext: " << pt << '\n';
+    std::cout << "Ciphertext: " << ct << '\n';
+
+    return EXIT_SUCCESS;
+}
+
+```
+
+Output:
+```
+Plaintext: Hello, world!
+Ciphertext: WAAn1j+Ew-*U-F[
+```
