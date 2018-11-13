@@ -23,14 +23,13 @@ SOFTWARE.
 */
 
 #pragma once
+#ifndef HILL_CIPHER_H
+#define HILL_CIPHER_H
 #include <algorithm>
 #include <array>
-#include <fstream>
-#include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <vector>
-
 #include <int_mod.h>
 #include <matrix_t.h>
 
@@ -301,6 +300,7 @@ namespace math_nerd
 
     } // namespace hill_cipher
 } // namespace math_nerd
+#endif
 
 /** \mainpage Hill Cipher, modulo 97
     \section gitlab_link GitLab Link
