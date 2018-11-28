@@ -23,15 +23,15 @@ SOFTWARE.
 */
 
 #pragma once
-#ifndef HILL_CIPHER_H
-#define HILL_CIPHER_H
+#ifndef MATH_NERD_HILL_CIPHER_H
+#define MATH_NERD_HILL_CIPHER_H
 #include <algorithm>
 #include <array>
 #include <sstream>
 #include <stdexcept>
 #include <vector>
-#include <int_mod.h>
-#include <matrix_t.h>
+#include <math_nerd/int_mod.h>
+#include <math_nerd/matrix_t.h>
 
 /** \file hill_cipher.h
     \brief A basic Hill Cipher implementation modulo 97.
