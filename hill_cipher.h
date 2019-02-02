@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2018 Math Nerd
+Copyright (c) 2019 Math Nerd
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,8 @@ SOFTWARE.
 */
 
 #pragma once
-#ifndef MATH_NERD_HILL_CIPHER_H
-#define MATH_NERD_HILL_CIPHER_H
+#ifndef HILL_CIPHER_H
+#define HILL_CIPHER_H
 #include <algorithm>
 #include <array>
 #include <sstream>
@@ -53,13 +53,11 @@ namespace math_nerd
 
         /** \name Hill Cipher key
          */
-        template <std::size_t size>
-        using hill_key = matrix_t::matrix_t<z97, size, size>;
+        using hill_key = matrix_t::matrix_t<z97>;
 
         /** \name Hill Cipher message block
          */
-        template <std::size_t size>
-        using msg_block = matrix_t::matrix_t<z97, size, 1>;
+        using msg_block = matrix_t::matrix_t<z97>;
 
         /** \namespace math_nerd::hill_cipher::impl_details
             \brief Contains implementation details.
@@ -98,18 +96,18 @@ namespace math_nerd
                        For size = 2, assuming the determinant \f$ ad-bc\neq 0 \f$, we have
                        \f$\left[\begin{array}{cc} a & b\\ c & d \end{array}\right]^{-1}=\frac{1}{ad-bc}\left[\begin{array}{cc} d & -b\\ -c & a \end{array}\right]\f$
              */
-            template <std::size_t size>
-            hill_key<size> inverse_of(hill_key<size> key);
+            hill_key inverse_of(hill_key key);
         } // namespace impl_details
 
         /** \fn std::string encrypt(hill_key<size> key, std::string pt)
             \brief Encrypts plaintext string using the key by breaking the string into blocks the same size as the matrix key and multiplying by the key.
          */
-        template <std::size_t size>
-        std::string encrypt(hill_key<size> key, std::string pt)
+        std::string encrypt(hill_key key, std::string pt)
         {
-            std::vector<msg_block<size>> plain_text_blocks;
-            std::vector<msg_block<size>> cipher_text_blocks;
+            std::int64_t size = key.row_count();
+
+            std::vector<msg_block> plain_text_blocks;
+            std::vector<msg_block> cipher_text_blocks;
 
             using namespace impl_details;
 
@@ -120,11 +118,11 @@ namespace math_nerd
             }
 
             // Take each `size` characters as a message block, put in vector of plaintext blocks.
-            for( auto i = 0u; i < pt.length(); i += size )
+            for( auto i = 0u; i < pt.length(); i += static_cast<unsigned>(size) )
             {
-                msg_block<size> tmp;
+                msg_block tmp{ size, 1 };
 
-                for( auto j = 0u; j < size; ++j )
+                for( auto j = 0; j < size; ++j )
                 {
                     tmp[j][0] = char_to_z97(pt[i + j]);
                 }
@@ -144,7 +142,7 @@ namespace math_nerd
             // Convert each ciphertext block into the corresponding characters.
             for( auto it = cipher_text_blocks.begin(); it != cipher_text_blocks.end(); ++it )
             {
-                for( auto j = 0u; j < size; ++j )
+                for( auto j = 0; j < size; ++j )
                 {
                     ct += z97_to_char((*it)[j][0]);
                 }
@@ -157,19 +155,17 @@ namespace math_nerd
         /** \fn std::string decrypt(hill_key<size> key, std::string const &ct)
             \brief Decrypts ciphertext by calling the encrypt function with the inverse matrix.
          */
-        template <std::size_t size>
-        std::string decrypt(hill_key<size> key, std::string const &ct)
+        std::string decrypt(hill_key key, std::string const &ct)
         {
             return encrypt(impl_details::inverse_of(key), ct);
         }
 
-        template <std::size_t size>
-        hill_key<size> impl_details::inverse_of(hill_key<size> key)
+        hill_key impl_details::inverse_of(hill_key key)
         {
-
-            hill_key<size> dec_key;
+            std::int64_t size = key.row_count();
+            hill_key dec_key{ size, size };
     
-            if constexpr ( size == 2 )
+            if ( size == 2 )
             {
                 // Check if determinant is 0.
                 if( key[0][0] * key[1][1] == key[0][1] * key[1][0] )
@@ -192,9 +188,9 @@ namespace math_nerd
             {
                 // Creating identity matrix.
                 // dec_key acts as the augmented portion of the key matrix in the Gauss-Jordan Elimination algorithm.
-                for( auto i = 0u; i < size; ++i )
+                for( auto i = 0; i < size; ++i )
                 {
-                    for( auto j = 0u; j < size; ++j )
+                    for( auto j = 0; j < size; ++j )
                     {
                         if( j == i )
                         {
@@ -207,7 +203,7 @@ namespace math_nerd
                     }
                 }
 
-                for( auto i = 0u; i < size; ++i )
+                for( auto i = 0; i < size; ++i )
                 {
                     auto max_element = key[i][i].value();
                     auto max_row = i;
@@ -296,6 +292,20 @@ namespace math_nerd
 
                 return dec_key;
             }
+        }
+
+        bool is_valid_key(hill_key key)
+        {
+            try
+            {
+                impl_details::inverse_of(key);
+            }
+            catch( std::invalid_argument const & )
+            {
+                return false;
+            }
+
+            return true;
         }
 
     } // namespace hill_cipher
