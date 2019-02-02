@@ -14,11 +14,12 @@ using namespace math_nerd::hill_cipher; // For demonstration purposes.
 
 int main()
 {
-    hill_key<5> key;
+    constexpr std::int64_t key_size = 5;
+    hill_key key{ key_size };
 
-    for( auto i = 0u; i < 5; ++i )
+    for( auto i = 0u; i < key_size; ++i )
     {
-        for( auto j = 0u; j < 5; ++j )
+        for( auto j = 0u; j < key_size; ++j )
         {
             if( i < j )
             {
