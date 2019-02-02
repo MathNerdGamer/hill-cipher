@@ -17,9 +17,9 @@ int main()
     constexpr std::int64_t key_size = 5;
     hill_key key{ key_size };
 
-    for( auto i = 0u; i < key_size; ++i )
+    for( auto i = 0; i < key_size; ++i )
     {
-        for( auto j = 0u; j < key_size; ++j )
+        for( auto j = 0; j < key_size; ++j )
         {
             if( i < j )
             {
