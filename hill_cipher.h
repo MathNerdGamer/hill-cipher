@@ -78,7 +78,7 @@ namespace math_nerd
             /** \fn constexpr char z97_to_char(z97 num)
                 \brief Returns the character assigned to that integer modulo 97.
              */
-            constexpr char z97_to_char(z97 num)
+            char z97_to_char(z97 num)
             {
                 return ch_table[static_cast<std::size_t>(num.value())];
             }
@@ -86,9 +86,9 @@ namespace math_nerd
             /** \fn constexpr z97 char_to_z97(char c)
                 \brief Returns the integer modulo 97 assigned to that character.
              */
-            constexpr z97 char_to_z97(char c)
+            z97 char_to_z97(char c)
             {
-                return std::distance(std::begin(ch_table), find(std::begin(ch_table), std::end(ch_table), c));
+                return std::distance(std::begin(ch_table), std::find(std::begin(ch_table), std::end(ch_table), c));
             }
 
             /** \fn hill_key<size> inverse_of(hill_key<size> key)
