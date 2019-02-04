@@ -57,5 +57,5 @@ int main()
 Output:
 ```
 Plaintext: Hello, world!
-Ciphertext: WAAn1j+Ew-*U-F[
+Ciphertext: aVAn1%,Ew-^t-F[
 ```
