@@ -168,13 +168,12 @@ namespace math_nerd
         }
 
     } // namespace hill_cipher
-
+    
     template<>
     hill_cipher::hill_key hill_cipher::hill_key::inverse() const
     {
         auto size = row_count();
 
-        auto key{ *this };
         hill_cipher::hill_key dec_key{ size, size };
 
         if ( size == 2 )
@@ -186,16 +185,17 @@ namespace math_nerd
             }
 
             // Calculate and hold determinant.
-            hill_cipher::z97 det = key[0][0] * key[1][1] - key[0][1] * key[1][0];
+            hill_cipher::z97 det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
 
             // This gives the inverse matrix for 2x2 matrices.
-            dec_key[0][0] =  key[1][1] / det;
-            dec_key[0][1] = -key[0][1] / det;
-            dec_key[1][0] = -key[1][0] / det;
-            dec_key[1][1] =  key[0][0] / det;
+            dec_key[0][0] =  mat[1][1] / det;
+            dec_key[0][1] = -mat[0][1] / det;
+            dec_key[1][0] = -mat[1][0] / det;
+            dec_key[1][1] =  mat[0][0] / det;
         }
         else
         {
+            auto key{ *this };
             // Creating identity matrix.
             // dec_key acts as the augmented portion of the key matrix in the Gauss-Jordan Elimination algorithm.
             for( auto i = 0; i < size; ++i )
@@ -302,6 +302,7 @@ namespace math_nerd
 
         return dec_key;
     }
+
 } // namespace math_nerd
 #endif // MATH_NERD_HILL_CIPHER
 
