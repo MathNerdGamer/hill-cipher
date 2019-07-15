@@ -92,7 +92,7 @@ namespace math_nerd
 
         } // namespace impl_details
 
-        /** \fn std::string encrypt(hill_key<size> key, std::string pt)
+        /** \fn std::string encrypt(hill_key key, std::string pt)
             \brief Encrypts plaintext string using the key by breaking the string into blocks the same size as the matrix key and multiplying by the key.
          */
         std::string encrypt(hill_key key, std::string pt)
@@ -145,7 +145,7 @@ namespace math_nerd
             return ct;
         }
 
-        /** \fn std::string decrypt(hill_key<size> key, std::string const &ct)
+        /** \fn std::string decrypt(hill_key key, std::string const &ct)
             \brief Decrypts ciphertext by calling the encrypt function with the inverse matrix.
          */
         std::string decrypt(hill_key key, std::string const &ct)
