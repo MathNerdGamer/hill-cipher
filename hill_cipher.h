@@ -153,7 +153,7 @@ namespace math_nerd
             // Turn key matrix into identity matrix using row operations.
             // Copy these same row operations to dec_key to find the inverse matrix.
             for( auto i = size - 1; i >= 0; --i )
-            {
+            {   // Loop not infinite -- i = 0 breaks, but work needs to be done in that case first.
                 if( key[i][i] == 0 )
                 {
                     throw std::invalid_argument("The matrix is not invertible.\n");
@@ -169,7 +169,7 @@ namespace math_nerd
                 if( i != 0 )
                 {
                     for( auto row = i - 1; row >= 0; --row )
-                    {
+                    {   // Loop not infinite -- row = 0 breaks, but work needs to be done in that case first.
                         for( auto column = std::size_t{ 0 }; column < size; ++column )
                         {
                             dec_key[row][column] -= dec_key[i][column] * key[row][i];
