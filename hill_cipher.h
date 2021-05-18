@@ -62,7 +62,7 @@ namespace math_nerd
     template<>
     hill_cipher::hill_key hill_cipher::hill_key::inverse() const
     {
-        auto size = row_count();
+        auto size = static_cast<std::size_t>( row_count() );
 
         hill_cipher::hill_key dec_key{ size, size };
 
@@ -88,9 +88,9 @@ namespace math_nerd
             auto key{ *this };
             // Creating identity matrix.
             // dec_key acts as the augmented portion of the key matrix in the Gauss-Jordan Elimination algorithm.
-            for( auto i = 0; i < size; ++i )
+            for( auto i = std::size_t{ 0 }; i < size; ++i )
             {
-                for( auto j = 0; j < size; ++j )
+                for( auto j = std::size_t{ 0 }; j < size; ++j )
                 {
                     if( j == i )
                     {
@@ -103,11 +103,11 @@ namespace math_nerd
                 }
             }
 
-            for( auto i = 0; i < size; ++i )
+            for( auto i = std::size_t{ 0 }; i < size; ++i )
             {
                 auto max_element = key[i][i].value();
                 auto max_row = i;
-                for( auto k = i + 1; k < size; ++k )
+                for( auto k = std::size_t{ i + 1 }; k < size; ++k )
                 {
                     if( key[k][i].value() > max_element )
                     {
@@ -141,7 +141,7 @@ namespace math_nerd
 
                     auto d = key[k][i] / key[i][i];
 
-                    for( auto j = 0; j < size; ++j )
+                    for( auto j = std::size_t{ 0 }; j < size; ++j )
                     {
                         key[k][j] -= d * key[i][j];
                         dec_key[k][j] -= d * dec_key[i][j];
@@ -159,7 +159,7 @@ namespace math_nerd
                     throw std::invalid_argument("The matrix is not invertible.\n");
                 }
 
-                for( auto j = 0; j < size; ++j )
+                for( auto j = std::size_t{ 0 }; j < size; ++j )
                 {
                     dec_key[i][j] /= key[i][i];
                 }
@@ -170,7 +170,7 @@ namespace math_nerd
                 {
                     for( auto row = i - 1; row >= 0; --row )
                     {
-                        for( auto column = 0; column < size; ++column )
+                        for( auto column = std::size_t{ 0 }; column < size; ++column )
                         {
                             dec_key[row][column] -= dec_key[i][column] * key[row][i];
                         }
