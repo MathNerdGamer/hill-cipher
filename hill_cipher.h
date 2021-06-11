@@ -59,14 +59,17 @@ namespace math_nerd
         using msg_block = matrix_t::matrix_t<z97>;
     }
 
+    /** \fn auto hill_cipher::hill_key::inverse() const -> hill_cipher::hill_key
+        \brief Returns the inverse matrix of the hill ciper key.
+     */
     template<>
-    hill_cipher::hill_key hill_cipher::hill_key::inverse() const
+    auto hill_cipher::hill_key::inverse() const -> hill_cipher::hill_key
     {
         auto size = static_cast<std::size_t>( row_count() );
 
         hill_cipher::hill_key dec_key{ size, size };
 
-        if ( size == 2 )
+        if( size == 2 )
         {
             // Check if determinant is 0.
             if( mat[0][0] * mat[1][1] == mat[0][1] * mat[1][0] )
@@ -214,7 +217,7 @@ namespace math_nerd
             /** \fn constexpr char z97_to_char(z97 num)
                 \brief Returns the character assigned to that integer modulo 97.
              */
-            char z97_to_char(z97 num)
+            constexpr auto z97_to_char(z97 num) -> char
             {
                 return ch_table[static_cast<std::size_t>(num.value())];
             }
@@ -222,17 +225,17 @@ namespace math_nerd
             /** \fn constexpr z97 char_to_z97(char c)
                 \brief Returns the integer modulo 97 assigned to that character.
              */
-            z97 char_to_z97(char c)
+            constexpr auto char_to_z97(char c) -> z97
             {
                 return std::distance(std::begin(ch_table), std::find(std::begin(ch_table), std::end(ch_table), c));
             }
 
         } // namespace impl_details
 
-        /** \fn std::string encrypt(hill_key key, std::string pt)
+        /** \fn auto encrypt(hill_key key, std::string pt) -> std::string
             \brief Encrypts plaintext string using the key by breaking the string into blocks the same size as the matrix key and multiplying by the key.
          */
-        std::string encrypt(hill_key key, std::string pt)
+        auto encrypt(hill_key key, std::string pt) -> std::string
         {
             std::int64_t size = key.row_count();
 
@@ -282,15 +285,18 @@ namespace math_nerd
             return ct;
         }
 
-        /** \fn std::string decrypt(hill_key key, std::string const &ct)
+        /** \fn auto decrypt(hill_key key, std::string const &ct) -> std::string
             \brief Decrypts ciphertext by calling the encrypt function with the inverse matrix.
          */
-        std::string decrypt(hill_key key, std::string const &ct)
+        auto decrypt(hill_key key, std::string const &ct) -> std::string
         {
             return encrypt(key.inverse(), ct);
         }
 
-        bool is_valid_key(hill_key key)
+        /** \fn auto is_valid_key(hill_key const &key) -> bool
+            \brief Decrypts ciphertext by calling the encrypt function with the inverse matrix.
+         */
+        auto is_valid_key(hill_key const &key) -> bool
         {
             try
             {
@@ -310,6 +316,22 @@ namespace math_nerd
 #endif // MATH_NERD_HILL_CIPHER
 
 /** \mainpage Hill Cipher, modulo 97
+    \section the_math The Math
+    The <a href="https://en.wikipedia.org/wiki/Hill_cipher">Hill Cipher</a> is a classical cryptosystem
+    using matrix multiplication and modular arithmetic. Essentially, plaintext is partitioned into blocks
+    according to the size of the key matrix, with padding added to the final block as needed. Then, each character
+    is assigned a numerical value (typically 0-25 for A-Z) and the blocks are treated as vectors, which are then
+    multiplied by the key matrix. The key matrix is required to be invertible, so that plaintext may be retrieved
+    from the ciphertext by the same process (with the key matrix replaced by its inverse).
+
+    The classical version is taken modulo 26. However, since 26 is not prime, there is a subtle issue to take into account,
+    namely the fact that a matrix is invertible if and only if the determinant, itself, is invertible modulo 26. This means
+    that simply testing for 0 (mod 26) determinant is not enough -- one must also check that the determinant is not a factor
+    of 26 (2 or 13).
+
+    In this implementation of the Hill Cipher, we use a character set with 97 symbols. Since 97 is prime, we avert the disadvantage
+    of the classical version.
+
     \section gitlab_link GitLab Link
     View the source code at <a href="https://gitlab.com/mathnerd/hill-cipher">GitLab</a>.
  */
