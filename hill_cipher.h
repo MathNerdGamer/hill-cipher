@@ -36,9 +36,9 @@ SOFTWARE.
     \brief A basic Hill Cipher implementation modulo 97.
  */
 
-/** \namespace math_nerd
-    \brief Namespace for all of my projects.
- */
+ /** \namespace math_nerd
+     \brief Namespace for all of my projects.
+  */
 namespace math_nerd
 {
     /** \namespace math_nerd::hill_cipher
@@ -56,7 +56,12 @@ namespace math_nerd
 
         /** \name Hill Cipher message block
          */
-        using msg_block = matrix_t::matrix_t<z97>;
+        //using msg_block = matrix_t::matrix_t<z97>;
+        class msg_block : public matrix_t::matrix_t<z97>
+        {
+            public:
+                msg_block(std::int64_t size) : matrix_t::matrix_t(size, 1) {}
+        };
     }
 
     /** \fn auto hill_cipher::hill_key::inverse() const -> hill_cipher::hill_key
@@ -65,9 +70,9 @@ namespace math_nerd
     template<>
     auto hill_cipher::hill_key::inverse() const -> hill_cipher::hill_key
     {
-        auto size = static_cast<std::size_t>( row_count() );
+        auto size = row_count();
 
-        hill_cipher::hill_key dec_key{ size, size };
+        hill_cipher::hill_key dec_key{ size };
 
         if( size == 2 )
         {
@@ -81,19 +86,19 @@ namespace math_nerd
             hill_cipher::z97 det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
 
             // This gives the inverse matrix for 2x2 matrices.
-            dec_key[0][0] =  mat[1][1] / det;
+            dec_key[0][0] = mat[1][1] / det;
             dec_key[0][1] = -mat[0][1] / det;
             dec_key[1][0] = -mat[1][0] / det;
-            dec_key[1][1] =  mat[0][0] / det;
+            dec_key[1][1] = mat[0][0] / det;
         }
         else
         {
             auto key{ *this };
             // Creating identity matrix.
             // dec_key acts as the augmented portion of the key matrix in the Gauss-Jordan Elimination algorithm.
-            for( auto i = std::size_t{ 0 }; i < size; ++i )
+            for( auto i = 0; i < size; ++i )
             {
-                for( auto j = std::size_t{ 0 }; j < size; ++j )
+                for( auto j = 0; j < size; ++j )
                 {
                     if( j == i )
                     {
@@ -106,11 +111,11 @@ namespace math_nerd
                 }
             }
 
-            for( auto i = std::size_t{ 0 }; i < size; ++i )
+            for( auto i = 0; i < size; ++i )
             {
                 auto max_element = key[i][i].value();
                 auto max_row = i;
-                for( auto k = std::size_t{ i + 1 }; k < size; ++k )
+                for( auto k = i + 1; k < size; ++k )
                 {
                     if( key[k][i].value() > max_element )
                     {
@@ -144,7 +149,7 @@ namespace math_nerd
 
                     auto d = key[k][i] / key[i][i];
 
-                    for( auto j = std::size_t{ 0 }; j < size; ++j )
+                    for( auto j = 0; j < size; ++j )
                     {
                         key[k][j] -= d * key[i][j];
                         dec_key[k][j] -= d * dec_key[i][j];
@@ -156,13 +161,13 @@ namespace math_nerd
             // Turn key matrix into identity matrix using row operations.
             // Copy these same row operations to dec_key to find the inverse matrix.
             for( auto i = size - 1; i >= 0; --i )
-            {   // Loop not infinite -- i = 0 breaks, but work needs to be done in that case first.
+            {
                 if( key[i][i] == 0 )
                 {
                     throw std::invalid_argument("The matrix is not invertible.\n");
                 }
 
-                for( auto j = std::size_t{ 0 }; j < size; ++j )
+                for( auto j = 0; j < size; ++j )
                 {
                     dec_key[i][j] /= key[i][i];
                 }
@@ -173,7 +178,7 @@ namespace math_nerd
                 {
                     for( auto row = i - 1; row >= 0; --row )
                     {   // Loop not infinite -- row = 0 breaks, but work needs to be done in that case first.
-                        for( auto column = std::size_t{ 0 }; column < size; ++column )
+                        for( auto column = 0; column < size; ++column )
                         {
                             dec_key[row][column] -= dec_key[i][column] * key[row][i];
                         }
@@ -206,13 +211,13 @@ namespace math_nerd
             /** \property ch_table
                 \brief The character table.
              */
-            constexpr std::array<char, 97> ch_table =
+            constexpr std::array<char, 97> ch_table{
             {
                 'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
                 'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
                 '0','1','2','3','4','5','6','7','8','9',' ','~','-','=','!','@','#','$','%','^','&','*','(',')','_','+',
                 '[',']',';','\'',',','.','/','{','}',':','"','<','>','?','`', '\\', '|', '\t', '\n'
-            };
+            } };
 
             /** \fn constexpr char z97_to_char(z97 num)
                 \brief Returns the character assigned to that integer modulo 97.
@@ -225,7 +230,7 @@ namespace math_nerd
             /** \fn constexpr z97 char_to_z97(char c)
                 \brief Returns the integer modulo 97 assigned to that character.
              */
-            constexpr auto char_to_z97(char c) -> z97
+            constexpr auto char_to_z97(char const c) -> z97
             {
                 return std::distance(std::begin(ch_table), std::find(std::begin(ch_table), std::end(ch_table), c));
             }
@@ -239,9 +244,6 @@ namespace math_nerd
         {
             std::int64_t size = key.row_count();
 
-            std::vector<msg_block> plain_text_blocks;
-            std::vector<msg_block> cipher_text_blocks;
-
             using namespace impl_details;
 
             // Pad plaintext to make its length a multiple of size
@@ -250,38 +252,27 @@ namespace math_nerd
                 pt += ' ';
             }
 
-            // Take each `size` characters as a message block, put in vector of plaintext blocks.
-            for( auto i = 0u; i < pt.length(); i += static_cast<unsigned>(size) )
-            {
-                msg_block tmp{ size, 1 };
+            std::string ct;
+            ct.resize(pt.size());
 
-                for( auto j = 0; j < size; ++j )
-                {
-                    tmp[j][0] = char_to_z97(pt[i + j]);
-                }
+            msg_block block{ size };
 
-                plain_text_blocks.push_back(tmp);
-            }
-
-            // Multiply each block with the key matrix and put in vector of ciphertext blocks.
-            for( auto it = plain_text_blocks.begin(); it != plain_text_blocks.end(); ++it )
-            {
-                cipher_text_blocks.push_back(key * (*it));
-            }
-
-            // Create an empty ciphertext string.
-            std::string ct{ "" };
-
-            // Convert each ciphertext block into the corresponding characters.
-            for( auto it = cipher_text_blocks.begin(); it != cipher_text_blocks.end(); ++it )
+            // Take each `size` characters as a message block and encrypt.
+            for( auto i = 0u, idx = 0u; i < pt.length(); i += static_cast<std::uint32_t>(size), ++idx )
             {
                 for( auto j = 0; j < size; ++j )
                 {
-                    ct += z97_to_char((*it)[j][0]);
+                    block[j][0] = char_to_z97(pt[i + j]);
+                }
+
+                auto cipher = key * block;
+
+                for( auto j = 0; j < size; ++j )
+                {
+                    ct[idx * size + j] = z97_to_char(cipher[j][0]);
                 }
             }
 
-            // Return the ciphertext string.
             return ct;
         }
 
@@ -294,7 +285,7 @@ namespace math_nerd
         }
 
         /** \fn auto is_valid_key(hill_key const &key) -> bool
-            \brief Decrypts ciphertext by calling the encrypt function with the inverse matrix.
+            \brief Determines if a provided key matrix is valid (invertible).
          */
         auto is_valid_key(hill_key const &key) -> bool
         {
@@ -331,6 +322,8 @@ namespace math_nerd
 
     In this implementation of the Hill Cipher, we use a character set with 97 symbols. Since 97 is prime, we avert the disadvantage
     of the classical version.
+
+    This projects uses two types that I implemented, <a href="../matrix_t/index.html">Minimal Matrix</a> and <a href="../int_mod/index.html">Integers Modulo N</a>.
 
     \section gitlab_link GitLab Link
     View the source code at <a href="https://gitlab.com/mathnerd/hill-cipher">GitLab</a>.
