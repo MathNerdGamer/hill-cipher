@@ -52,16 +52,8 @@ namespace math_nerd
 
         /** \name Hill Cipher key
          */
-        using hill_key = matrix_t::matrix_t<z97>;
-
-        /** \name Hill Cipher message block
-         */
-        //using msg_block = matrix_t::matrix_t<z97>;
-        class msg_block : public matrix_t::matrix_t<z97>
-        {
-            public:
-                msg_block(std::int64_t size) : matrix_t::matrix_t(size, 1) {}
-        };
+        using hill_key  = matrix_t::matrix_t<z97>;
+        using msg_block = std::vector<z97>;
     }
 
     /** \fn auto hill_cipher::hill_key::inverse() const -> hill_cipher::hill_key
@@ -255,14 +247,14 @@ namespace math_nerd
             std::string ct;
             ct.resize(pt.size());
 
-            msg_block block{ size };
+            msg_block block(size);
 
             // Take each `size` characters as a message block and encrypt.
             for( auto i = 0u, idx = 0u; i < pt.length(); i += static_cast<std::uint32_t>(size), ++idx )
             {
                 for( auto j = 0; j < size; ++j )
                 {
-                    block[j][0] = char_to_z97(pt[i + j]);
+                    block[j] = char_to_z97(pt[i + j]);
                 }
 
                 auto cipher = key * block;
