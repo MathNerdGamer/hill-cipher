@@ -4,6 +4,8 @@ A header-only basic Hill Cipher implementation modulo 97 (all characters commonl
 
 Uses my two header-only implementations of [integers modulo N](https://github.com/MathNerdGamer/integers-modulo-n) and [minimal matrix](https://github.com/MathNerdGamer/minimal-matrix).
 
+**Note: This was developed for educational purposes. Do not use this in any production code.**
+
 # Usage
 Here's a basic example:
 ```
